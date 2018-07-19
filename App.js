@@ -14,7 +14,7 @@ import anim from './search.json';
 
 export default class App extends Component {
   componentDidMount() {
-    this.animation.play();
+    //this.animation.play();
   }
 
   render() {
@@ -22,7 +22,7 @@ export default class App extends Component {
       <View style={styles.container}>
         <Text style={styles.welcome}>Welcome to Lottie Animations :-)</Text>
         <View>
-          <Animation
+           <Animation
             ref={animation => {
               this.animation = animation;
             }}
@@ -32,7 +32,9 @@ export default class App extends Component {
             }}
             loop={true}
             source={anim}
-          />
+          /> 
+
+
         </View>
 
       </View>
