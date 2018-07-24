@@ -21,7 +21,6 @@ import { AppRegistry, StyleSheet, Text, View , TouchableHighlight} from 'react-n
 import Animation from 'lottie-react-native';
 
 import anim from './data1.json';
-import anim2 from './data2.json';
 
 export default class App extends Component {
 
@@ -31,7 +30,8 @@ export default class App extends Component {
     this.state={source : anim }
 
     this.green = this.green.bind(this)
-    this.greenPlay = this.greenPlay.bind(this)
+    this.black = this.black.bind(this)
+    this.seteo = this.seteo.bind(this)
 
   }
 
@@ -39,28 +39,62 @@ export default class App extends Component {
     this.animation.play();
   }
 
+  seteo(){
+    this.setState({source: anim})
+  }
+
   green(){
-   
-    //this.state.source.layers[1].shapes[0].it[1].c.k[0] = '0'
-    //this.state.source.layers[1].shapes[0].it[1].c.k[1] = '1'
-    //this.state.source.layers[1].shapes[0].it[1].c.k[2] = '1'
-    //this.state.source.layers[1].shapes[0].it[1].c.k[3] = '0'
+    anim.layers[1].shapes[0].it[1].c.k[0] = '0'
+    anim.layers[1].shapes[0].it[1].c.k[1] = '1'
+    anim.layers[1].shapes[0].it[1].c.k[2] = '0'
+    anim.layers[1].shapes[0].it[1].c.k[3] = '0'
 
-      //anim.layers[1].shapes[0].it[1].c.k[0] = '0'
-      //anim.layers[1].shapes[0].it[1].c.k[1] = '1'
-      //anim.layers[1].shapes[0].it[1].c.k[2] = '0'
-      //anim.layers[1].shapes[0].it[1].c.k[3] = '0'
-    this.setState({source: anim2})
-    this.animation.reset();    
-    this.greenPlay();
-  }
-  greenPlay(){
-      console.log("pase por play")
-      //console.log(this.state.source.layers[1].shapes[0].it[1].c.k)
-      //console.log(this.state.source.layers[1].shapes[0].it[1].c.k)
-      this.animation.play();
+    function resolveAfter200Miliseconds() {
+      console.log('calling');
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve('resolved');
+        }, 200);
+      });
+    }
+
+    async function asyncCall(seteo , animation) {
+      seteo()
+      var result = await resolveAfter200Miliseconds(); 
+      console.log("async");
+      animation.reset()
+      animation.play();
+      //expected output: "resolved"
+    }
+    asyncCall(this.seteo, this.animation);    // si no hago primero el set state debo presionar 2 veces el boton
   }
 
+  black(){
+    anim.layers[1].shapes[0].it[1].c.k[0] = '0'
+    anim.layers[1].shapes[0].it[1].c.k[1] = '0'
+    anim.layers[1].shapes[0].it[1].c.k[2] = '0'
+    anim.layers[1].shapes[0].it[1].c.k[3] = '0'
+
+    function resolveAfter200Miliseconds() {
+      console.log('calling');
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve('resolved');
+        }, 200);
+      });
+    }
+
+    async function asyncCall(seteo , animation) {
+      seteo()
+      var result = await resolveAfter200Miliseconds(); 
+      console.log("async");
+      animation.reset()
+      animation.play();
+      //expected output: "resolved"
+    }
+    asyncCall(this.seteo, this.animation);    // si no hago primero el set state debo presionar 2 veces el boton
+  }
+ 
 
   render() {
     return (
@@ -76,13 +110,16 @@ export default class App extends Component {
               height: 100,
               //backgroundColor: 'blue' //el fondo te deja editarlo desde aca
             }}
-            loop={false}
+            loop={true}
             source={this.state.source}
             //source={anim}
           /> 
      
         <TouchableHighlight style={styles.greenButton} onPress={this.green}>
-                <Text style={styles.buttonText}>Hacete Verde</Text>
+                <Text style={styles.buttonText}>Verde</Text>
+        </TouchableHighlight>
+        <TouchableHighlight style={styles.greenButton} onPress={this.black}>
+                <Text style={styles.buttonText}>Negro</Text>
         </TouchableHighlight>
        
         </View>
@@ -116,6 +153,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     elevation: 2, // Android
     //alignItems:'flex-end'
+  },
+  buttonText: {
+    color: '#000000',
+    fontSize: 16,
+    justifyContent: "center",
+    textAlign: "center"
   },
 });
 
