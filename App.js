@@ -4,34 +4,29 @@
  * @flow
  */
 
-//LINEA 546 JSON,  PRIMER VECTOR DE CAPA 1 
-/*"k":[
-                           0.204,
-                           0.38,
-                           1,
-                           1
-                        ],
-*/
-
-
 console.disableYellowBox = true;
 
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View , TouchableHighlight} from 'react-native';
+import { AppRegistry, StyleSheet, Text, View , TouchableHighlight , Modal, NetInfo} from 'react-native';
 import Animation from 'lottie-react-native';
 
 import anim from './data1.json';
+import load from './loading.json';
+
 
 export default class App extends Component {
 
   constructor(props){
     super(props)
 
-    this.state={source : anim }
+    this.state={source : anim , load: load , openModal: false }
 
     this.green = this.green.bind(this)
     this.black = this.black.bind(this)
     this.seteo = this.seteo.bind(this)
+    this.openModal = this.openModal.bind(this)
+    this.closeModal = this.closeModal.bind(this)
+    this.animateLottie = this.animateLottie.bind(this)
 
   }
 
@@ -94,7 +89,41 @@ export default class App extends Component {
     }
     asyncCall(this.seteo, this.animation);    // si no hago primero el set state debo presionar 2 veces el boton
   }
- 
+
+  openModal(){
+
+      //console.log(this.animation)
+      //console.log(this.animation1)          
+      
+      
+      this.setState({openModal:true})
+      function resolveAfter3seconds() {
+        console.log('calling');
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve('resolved');
+          }, 3000);
+        });
+      }
+
+      async function asyncCall(closeModal) {
+        
+        var result = await resolveAfter3seconds(); 
+        console.log("async");
+        closeModal()
+        
+      }
+      asyncCall(this.closeModal, this.animation);
+
+  }
+
+  closeModal(){
+    console.log("PASE CERRAR")
+    this.setState({openModal:false})
+  }
+  animateLottie(){
+      this.animation1.play(); // UNDEFINED    porque carga esto antes que el modal de adentro
+  }
 
   render() {
     return (
@@ -108,22 +137,48 @@ export default class App extends Component {
             style={{
               width: 100,
               height: 100,
-              //backgroundColor: 'blue' //el fondo te deja editarlo desde aca
+           
             }}
             loop={true}
             source={this.state.source}
-            //source={anim}
+          
           /> 
-     
-        <TouchableHighlight style={styles.greenButton} onPress={this.green}>
-                <Text style={styles.buttonText}>Verde</Text>
-        </TouchableHighlight>
-        <TouchableHighlight style={styles.greenButton} onPress={this.black}>
-                <Text style={styles.buttonText}>Negro</Text>
-        </TouchableHighlight>
-       
+          <View style={{flexDirection:'row'}}>
+            <TouchableHighlight style={styles.greenButton} onPress={this.green}>
+                    <Text style={styles.buttonText}>Verde</Text>
+            </TouchableHighlight>
+            <TouchableHighlight style={styles.greenButton} onPress={this.black}>
+                    <Text style={styles.buttonText}>Negro</Text>
+            </TouchableHighlight>
+            <TouchableHighlight style={styles.greenButton} onPress={this.openModal}>
+                    <Text style={styles.buttonText}>Loading</Text>
+            </TouchableHighlight>
+          </View>
         </View>
 
+        <Modal visible={this.state.openModal} animationType='slide' onShow={this.animateLottie} >
+            <View style={{alignContent:'center' , justifyContent:'center' , alignItems:'center' , flex:1}} >
+              <Animation
+              ref={animation1 => {
+                this.animation1 = animation1;
+              }}
+              style={{
+                width: 100,
+                height: 100,
+                //backgroundColor: 'blue' //el fondo te deja editarlo desde aca
+              }}
+              loop={true}
+              source={this.state.load}
+              /> 
+            </View>
+            <Text>BLABLA</Text>
+
+              {/* {
+                NetInfo.getConnectionInfo().then((connectionInfo) => {
+              console.log('Initial, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
+                })
+              } */}
+        </Modal>
       </View>
     );
   }
@@ -137,6 +192,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    alignContent: 'center' ,
     backgroundColor: '#A6207E'
   },
   welcome: {
@@ -164,63 +220,4 @@ const styles = StyleSheet.create({
 
 AppRegistry.registerComponent('App', () => App);
 
-// import React, { Component } from 'react';
-// import { AppRegistry, StyleSheet, Text, View , TouchableHighlight, Animated} from 'react-native';
-// import Animation from 'lottie-react-native';
 
-// import anim from './data1.json';
-// import anim2 from './data2.json';
-
-// export default class App extends Component {
-
-// constructor(props) {
-//   super(props);
-//   this.state = {
-//     progress: new Animated.Value(0),
-//   };
-
-//   this.resetAnimation = this.resetAnimation.bind(this)
-// }
-
-// componentDidMount() {
-//   Animated.timing(this.state.progress, {
-//     toValue: 1,
-//     duration: 2000,
-//   }).start()
-
-// }
-
-// resetAnimation(){
-//   console.log("pase")
-//   Animated.timing(this.state.progress, {
-//     toValue: 1,
-//     duration: 500,
-//     Value:0
-//   }).start()
-// }
-
-// render() {
-//   // The screen's current route is passed in to `props.navigation.state`:
-
-//   {this.state.progress > 0.00 && console.log("puto")}
-
-//   {console.log(this.state.progress._value)}
-  
-//   return (
-//     <View>
-
-      
-//       <Animation
-//         style={{
-//           width: 100,
-//           height: 100,
-//         }}
-//         source={anim2}
-//         progress={this.state.progress}
-        
-       
-//       />
-//     </View>
-//   );
-// }
-// }
