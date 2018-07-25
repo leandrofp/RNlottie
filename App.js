@@ -7,7 +7,7 @@
 console.disableYellowBox = true;
 
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View , TouchableHighlight , Modal, NetInfo} from 'react-native';
+import { AppRegistry, StyleSheet, Text, View , TouchableHighlight , Modal, NetInfo , Platform  } from 'react-native';
 import Animation from 'lottie-react-native';
 
 import anim from './data1.json';
@@ -19,7 +19,7 @@ export default class App extends Component {
   constructor(props){
     super(props)
 
-    this.state={source : anim , load: load , openModal: false }
+    this.state={source : anim , load: load , openModal: false , wifi:'' , datos:''  }
 
     this.green = this.green.bind(this)
     this.black = this.black.bind(this)
@@ -27,6 +27,7 @@ export default class App extends Component {
     this.openModal = this.openModal.bind(this)
     this.closeModal = this.closeModal.bind(this)
     this.animateLottie = this.animateLottie.bind(this)
+    this.infoNetwork = this.infoNetwork.bind(this)
 
   }
 
@@ -90,25 +91,48 @@ export default class App extends Component {
     asyncCall(this.seteo, this.animation);    // si no hago primero el set state debo presionar 2 veces el boton
   }
 
+  async infoNetwork(){
+
+    const getConnectionInfo = async () => {
+      
+      if (Platform.OS === 'ios') {
+        return new Promise((resolve, reject) => {
+          const connectionHandler = connectionInfo => {
+            NetInfo.removeEventListener('connectionChange', connectionHandler)
+    
+            resolve(connectionInfo)
+          }
+    
+          NetInfo.addEventListener('connectionChange', connectionHandler)
+        })
+      } 
+      return NetInfo.getConnectionInfo()
+    }
+
+    const connectionInfo = await getConnectionInfo()
+    console.log(connectionInfo)
+    this.setState({wifi : connectionInfo.type , datos: connectionInfo.effectiveType})
+  }
+
   openModal(){
 
-      //console.log(this.animation)
-      //console.log(this.animation1)          
-      
+           
+     this.infoNetwork()
+
       
       this.setState({openModal:true})
-      function resolveAfter3seconds() {
+      function resolveAfter4seconds() {
         console.log('calling');
         return new Promise(resolve => {
           setTimeout(() => {
             resolve('resolved');
-          }, 3000);
+          }, 4000);
         });
       }
 
       async function asyncCall(closeModal) {
         
-        var result = await resolveAfter3seconds(); 
+        var result = await resolveAfter4seconds(); 
         console.log("async");
         closeModal()
         
@@ -122,7 +146,7 @@ export default class App extends Component {
     this.setState({openModal:false})
   }
   animateLottie(){
-      this.animation1.play(); // UNDEFINED    porque carga esto antes que el modal de adentro
+      this.animation1.play(); 
   }
 
   render() {
@@ -165,19 +189,17 @@ export default class App extends Component {
               style={{
                 width: 100,
                 height: 100,
-                //backgroundColor: 'blue' //el fondo te deja editarlo desde aca
+                //backgroundColor: 'blue' //el fondo te deja editarlo desde aca, pero a lo que toma la animacion
               }}
               loop={true}
               source={this.state.load}
               /> 
             </View>
-            <Text>BLABLA</Text>
+            <Text>WIFI: {this.state.wifi}   Datos Moviles: {this.state.datos}</Text>
 
-              {/* {
-                NetInfo.getConnectionInfo().then((connectionInfo) => {
-              console.log('Initial, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
-                })
-              } */}
+              
+                
+              
         </Modal>
       </View>
     );
