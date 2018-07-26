@@ -7,7 +7,7 @@
 console.disableYellowBox = true;
 
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Text, View , TouchableHighlight , Modal, NetInfo , Platform  } from 'react-native';
+import { AppRegistry, StyleSheet, Text, View , TouchableHighlight , Modal, NetInfo , Platform , Alert } from 'react-native';
 import Animation from 'lottie-react-native';
 
 import anim from './data1.json';
@@ -19,7 +19,7 @@ export default class App extends Component {
   constructor(props){
     super(props)
 
-    this.state={source : anim , load: load , openModal: false , wifi:'' , datos:''  }
+    this.state={source : anim , load: load , openModal: false , wifi:'' , datos:'' , connected:'' , fetching:'' }
 
     this.green = this.green.bind(this)
     this.black = this.black.bind(this)
@@ -29,10 +29,34 @@ export default class App extends Component {
     this.animateLottie = this.animateLottie.bind(this)
     this.infoNetwork = this.infoNetwork.bind(this)
 
+    this.fetching = this.fetching.bind(this)
+    this.handleResponse = this.handleResponse.bind(this)
+
+
+  }
+
+  handleResponse(response) {
+    //console.log("BLABLABLABLA")
+    if (!response.ok) {
+      this.setState({fetching: "Fallo el Fetch"})
+      return Promise.reject("Fallo");
+    }
+    this.setState({fetching: "Exito en el fetch"})
+    return "Exito";
+  }
+
+
+  async fetching() {
+   
+    return await fetch("https://facebook.github.io/react-native/movies.json").then(this.handleResponse).catch ( function(){
+      Alert.alert("NO TENES INTERNET!!!!!")
+      return originalCatch.apply(this, arguments);    // evita que entre al catch cuando funciona
+  });
   }
 
   componentDidMount() {
-    this.animation.play();
+    this.animation.play();     
+    this.fetching();
   }
 
   seteo(){
@@ -46,7 +70,7 @@ export default class App extends Component {
     anim.layers[1].shapes[0].it[1].c.k[3] = '0'
 
     function resolveAfter200Miliseconds() {
-      console.log('calling');
+      //console.log('calling');
       return new Promise(resolve => {
         setTimeout(() => {
           resolve('resolved');
@@ -72,7 +96,7 @@ export default class App extends Component {
     anim.layers[1].shapes[0].it[1].c.k[3] = '0'
 
     function resolveAfter200Miliseconds() {
-      console.log('calling');
+      //console.log('calling');
       return new Promise(resolve => {
         setTimeout(() => {
           resolve('resolved');
@@ -83,7 +107,7 @@ export default class App extends Component {
     async function asyncCall(seteo , animation) {
       seteo()
       var result = await resolveAfter200Miliseconds(); 
-      console.log("async");
+      //console.log("async");
       animation.reset()
       animation.play();
       //expected output: "resolved"
@@ -110,14 +134,19 @@ export default class App extends Component {
     }
 
     const connectionInfo = await getConnectionInfo()
-    console.log(connectionInfo)
+    //console.log(connectionInfo)
+    NetInfo.isConnected.fetch().then(isConnected => {
+      
+      this.setState({ connected : (isConnected ? 'online' : 'offline') })
+      //console.log(this.state.connected)
+    });
     this.setState({wifi : connectionInfo.type , datos: connectionInfo.effectiveType})
   }
 
   openModal(){
 
            
-     this.infoNetwork()
+      this.infoNetwork()
 
       
       this.setState({openModal:true})
@@ -149,6 +178,8 @@ export default class App extends Component {
       this.animation1.play(); 
   }
 
+ 
+
   render() {
     return (
       <View style={styles.container}>
@@ -179,6 +210,9 @@ export default class App extends Component {
             </TouchableHighlight>
           </View>
         </View>
+        <View>
+            <Text style={{fontSize:25 , fontWeight:'700' }}>{this.state.fetching} </Text>
+        </View>
 
         <Modal visible={this.state.openModal} animationType='slide' onShow={this.animateLottie} >
             <View style={{alignContent:'center' , justifyContent:'center' , alignItems:'center' , flex:1}} >
@@ -195,7 +229,7 @@ export default class App extends Component {
               source={this.state.load}
               /> 
             </View>
-            <Text>WIFI: {this.state.wifi}   Datos Moviles: {this.state.datos}</Text>
+            <Text>WIFI: {this.state.wifi} /  Datos Moviles: {this.state.datos} /  Estado: {this.state.connected}</Text>
 
               
                 
